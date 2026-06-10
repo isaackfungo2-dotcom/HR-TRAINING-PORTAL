@@ -1,0 +1,107 @@
+:root {
+  --aqua-primary: #06b6d4;
+  --aqua-dark: #0891b2;
+  --aqua-light: #cffafe;
+  --header-bg: var(--aqua-primary);
+  --header-text: #ffffff;
+  --sidebar-bg: #111827;
+  --sidebar-text: #f3f4f6;
+  --sidebar-hover: #1f2937;
+  --accent-black: #000000;
+  --body-bg: #f3f4f6;
+  --card-bg: #ffffff;
+  --card-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background-color: var(--body-bg);
+  color: #111827;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.page-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--accent-black);
+  border-left: 4px solid var(--aqua-primary);
+  padding-left: 10px;
+}
+
+.card {
+  background: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+/* aqua btn */
+.btn-aqua {
+  background: var(--aqua-primary);
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background .2s;
+}
+.btn-aqua:hover { background: var(--aqua-dark); }
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 500;
+}
+.status-pending-supervisor { background: #fcd34d; color: #78350f; }
+.status-supervisor-approved { background: #93c5fd; color: #1e3a8a; }
+.status-pending-hr { background: #c4b5fd; color: #4c1d95; }
+.status-hr-approved { background: #86efac; color: #14532d; }
+.status-rejected { background: #fca5a5; color: #7f1d1d; }
+.status-rescheduled { background: #f0abfc; color: #701a75; }
+
+/* Responsive tables */
+.table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .9rem;
+  min-width: 600px;
+}
+.data-table th, .data-table td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #e5e7eb;
+  white-space: nowrap;
+}
+.data-table th { background: #f9fafb; font-weight: 600; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-title { font-size: 1.25rem; }
+  .card { padding: 12px; margin-bottom: 12px; }
+  .container { padding: 10px; }
+}
+
+/* Form responsive */
+.form-group label { display:block; font-size:.85rem; color:#374151; margin-bottom:4px; }
+.form-group input, .form-group select, .form-group textarea {
+  width:100%; padding:8px; border:1px solid #d1d5db; border-radius:6px; box-sizing:border-box;
+}
+
+@media (max-width: 480px) {
+  .page-title { font-size: 1.1rem; }
+  .btn-aqua { padding: 6px 12px; font-size: .85rem; }
+}
+
