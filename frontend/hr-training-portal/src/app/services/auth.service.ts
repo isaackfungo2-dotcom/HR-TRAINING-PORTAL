@@ -1,11 +1,14 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 import { AuthResponse, LoginRequest, RegisterRequest, UserDto } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly API = 'http://localhost:8083/api/auth';
+
+  private _loggedIn$ = new BehaviorSubject<boolean>(!!localStorage.getItem('token'));
+  readonly loggedIn$ = this._loggedIn$.asObservable();
 
   constructor(private http: HttpClient) {}
 
@@ -23,6 +26,7 @@ export class AuthService {
 
   setToken(token: string) {
     localStorage.setItem('token', token);
+    this._loggedIn$.next(true);
   }
 
   getToken(): string | null {
@@ -31,9 +35,11 @@ export class AuthService {
 
   removeToken() {
     localStorage.removeItem('token');
+    this._loggedIn$.next(false);
   }
 
   isLoggedIn(): boolean {
     return !!this.getToken();
   }
 }
+

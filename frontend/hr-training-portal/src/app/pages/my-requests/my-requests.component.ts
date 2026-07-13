@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { TrainingRequestService } from '../../services/training-request.service';
 import { TrainingRequestDto } from '../../models';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-my-requests',
@@ -23,7 +24,7 @@ import { TrainingRequestDto } from '../../models';
                 <td>{{ r.title }}</td>
                 <td>{{ r.trainingType }}</td>
                 <td>{{ r.proposedStartDate }} to {{ r.proposedEndDate }}</td>
-                <td><span class="status-badge" [ngClass]="'status-'+ (r.status | lowercase).replace('_','-')">{{ r.status }}</span></td>
+                <td><span class="status-badge" [ngClass]="'status-'+ (r.status | lowercase).replaceAll('_','-')">{{ r.status }}</span></td>
                 <td>{{ formatCost(r) }}</td>
                 <td><button class="btn-aqua" style="padding:4px 10px; font-size:.8rem;" (click)="view(r.id)">View</button></td>
               </tr>
@@ -36,16 +37,57 @@ import { TrainingRequestDto } from '../../models';
   `,
   styles: [``]
 })
-export class MyRequestsComponent implements OnInit {
+export class MyRequestsComponent implements OnInit, OnDestroy {
   requests: TrainingRequestDto[] = [];
   error = '';
   loading = true;
-  constructor(private service: TrainingRequestService, private router: Router) {}
+  private sub?: Subscription;
+  private timeoutId?: ReturnType<typeof setTimeout>;
+
+  constructor(
+    private service: TrainingRequestService,
+    private router: Router,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
+
   ngOnInit() {
-    this.service.getMyRequests().subscribe({
-      next: (r) => { this.requests = r; this.loading = false; },
-      error: (err) => { this.error = err.error?.message || 'Failed to load requests'; this.loading = false; }
+    this.timeoutId = setTimeout(() => {
+      this.ngZone.run(() => {
+        if (this.loading) {
+          this.error = 'Request timed out. Please refresh the page.';
+          this.loading = false;
+          this.cdr.detectChanges();
+        }
+      });
+    }, 10000);
+
+    this.ngZone.run(() => {
+      this.sub = this.service.getMyRequests().subscribe({
+        next: (r) => {
+          this.ngZone.run(() => {
+            clearTimeout(this.timeoutId);
+            this.requests = r;
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        error: (err) => {
+          this.ngZone.run(() => {
+            clearTimeout(this.timeoutId);
+            console.error('getMyRequests error:', err);
+            this.error = err?.error?.message || err?.message || 'Failed to load. Check console (F12).';
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
+        }
+      });
     });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+    clearTimeout(this.timeoutId);
   }
   view(id?: number) { if (id) this.router.navigate(['/requests', id]); }
   formatCost(r: TrainingRequestDto): string {

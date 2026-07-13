@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { AuthService } from './services/auth.service';
 
 @Component({
@@ -10,42 +11,44 @@ import { AuthService } from './services/auth.service';
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   isLoggedIn = false;
   userName = '';
   userRole = '';
   sidebarOpen = false;
 
+  private authSub!: Subscription;
+
   constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
-    this.checkAuth();
+    this.authSub = this.authService.loggedIn$.subscribe(loggedIn => {
+      this.isLoggedIn = loggedIn;
+      if (loggedIn) {
+        this.authService.me().subscribe({
+          next: (u) => {
+            this.userName = `${u.firstName} ${u.lastName}`;
+            this.userRole = u.role;
+            localStorage.setItem('role', u.role || '');
+          },
+          error: () => {
+            this.authService.removeToken();
+            this.router.navigate(['/login']);
+          }
+        });
+      } else {
+        this.userName = '';
+        this.userRole = '';
+      }
+    });
   }
 
-  toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
+  ngOnDestroy() {
+    this.authSub?.unsubscribe();
   }
 
-  closeSidebar() {
-    this.sidebarOpen = false;
-  }
-
-  checkAuth() {
-    this.isLoggedIn = this.authService.isLoggedIn();
-    if (this.isLoggedIn) {
-      this.authService.me().subscribe({
-        next: (u) => {
-          this.userName = `${u.firstName} ${u.lastName}`;
-          this.userRole = u.role;
-        },
-        error: () => {
-          this.authService.removeToken();
-          this.isLoggedIn = false;
-          this.router.navigate(['/login']);
-        }
-      });
-    }
-  }
+  toggleSidebar() { this.sidebarOpen = !this.sidebarOpen; }
+  closeSidebar() { this.sidebarOpen = false; }
 
   canSupervise() {
     return this.userRole === 'SUPERVISOR' || this.userRole === 'HR' || this.userRole === 'ADMIN';
@@ -61,7 +64,6 @@ export class AppComponent implements OnInit {
 
   logout() {
     this.authService.removeToken();
-    this.isLoggedIn = false;
     this.router.navigate(['/login']);
   }
 }

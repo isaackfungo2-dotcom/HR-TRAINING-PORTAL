@@ -127,3 +127,92 @@ export interface DepartmentDto {
   name: string;
   description?: string;
 }
+
+export interface TrainingAssessmentDto {
+  id: number;
+  requestId: number;
+  requestTitle: string;
+  employeeId: number;
+  employeeName: string;
+  level: number;
+  status: string; // DRAFT | SUBMITTED | SUPERVISOR_SUBMITTED | REVIEWED
+  employeeData?: string; // raw JSON
+  supervisorData?: string; // raw JSON
+  supervisorName?: string;
+  supervisorSubmittedAt?: string;
+  hrComments?: string;
+  reviewedByName?: string;
+  reviewedAt?: string;
+  submittedAt?: string;
+  createdAt?: string;
+}
+
+// Level 1 form data
+export interface AssessmentLevel1Data {
+  trainingTitle: string;
+  dateOfTraining: string;
+  trainer: string;
+  rating_objectivesClear: number;
+  rating_contentRelevant: number;
+  rating_trainerKnowledgeable: number;
+  rating_materialsUseful: number;
+  rating_willApply: number;
+  rating_environment: number;
+  likedMost: string;
+  improvements: string;
+  additionalComments: string;
+  wouldRecommend: boolean | null;
+  recommendComments: string;
+}
+
+// Level 2 form data
+export interface AssessmentLevel2Data {
+  confidence: number;
+  understandingBefore: number;
+  understandingAfter: number;
+  topThingsLearned: string;
+  skill1Topic: string; skill1Rating: number;
+  skill2Topic: string; skill2Rating: number;
+  skill3Topic: string; skill3Rating: number;
+  practicalExercisesHelpful: boolean | null;
+  practicalExercisesDetails: string;
+  attitudeChanged: boolean | null;
+  attitudeChangeDescription: string;
+  confidenceChange: number;
+}
+
+// Level 3 Part A (employee)
+export interface AssessmentLevel3EmployeeData {
+  applicationFrequency: number;
+  specificConceptsApplied: string;
+  applicationConfidence: number;
+  behaviorChange: number;
+  performanceImproved: boolean | null;
+  performanceExplanation: string;
+  colleagueFeedback: boolean | null;
+  colleagueFeedbackDetails: string;
+  barriers: string[];
+  barriersOther: string;
+  supervisorSupport: number;
+  helpToApply: string;
+  additionalComments: string;
+  trainingRelevance: string;
+  practicalActivitiesHelp: string;
+  managerOpportunity: string;
+  workloadAllowed: string;
+  followUpTypes: string;
+}
+
+// Level 3 Part B (supervisor)
+export interface AssessmentLevel3SupervisorData {
+  [key: string]: any;
+  supervisorName: string;
+  behavior1: number; behavior2: number; behavior3: number;
+  behavior4: number; behavior5: number; behavior6: number;
+  results1: number; results2: number; results3: number;
+  support1: number; support2: number; support3: number;
+  positiveChanges: string;
+  noChangeAreas: string;
+  additionalSupport: string;
+  recommendTraining: string;
+}

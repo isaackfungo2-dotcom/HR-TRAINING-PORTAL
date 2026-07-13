@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Chart, registerables } from 'chart.js';
 import { DashboardService } from '../../services/dashboard.service';
@@ -32,7 +32,7 @@ Chart.register(...registerables);
         <table class="data-table">
           <thead><tr><th>ID</th><th>Title</th><th>Employee</th><th>Type</th><th>Status</th><th>Start Date</th></tr></thead>
           <tbody>
-            <tr *ngFor="let r of recentRequests"><td>{{ r.id }}</td><td>{{ r.title }}</td><td>{{ r.employeeName }}</td><td>{{ r.trainingType }}</td><td><span class="status-badge" [ngClass]="'status-'+ (r.status | lowercase).replace('_','-')">{{ r.status }}</span></td><td>{{ r.proposedStartDate }}</td></tr>
+            <tr *ngFor="let r of recentRequests"><td>{{ r.id }}</td><td>{{ r.title }}</td><td>{{ r.employeeName }}</td><td>{{ r.trainingType }}</td><td><span class="status-badge" [ngClass]="'status-'+ (r.status | lowercase).replaceAll('_','-')">{{ r.status }}</span></td><td>{{ r.proposedStartDate }}</td></tr>
           </tbody>
         </table>
       </div>
@@ -59,27 +59,39 @@ export class DashboardComponent implements OnInit {
   metrics: { label: string; value: any }[] = [];
   recentRequests: TrainingRequestDto[] = [];
 
-  constructor(private dashboardService: DashboardService, private requestService: TrainingRequestService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private requestService: TrainingRequestService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) {}
 
   ngOnInit() {
-    this.dashboardService.getMetrics().subscribe(m => {
-      this.metrics = [
-        { label: 'Total (Month)', value: m.totalRequestsThisMonth },
-        { label: 'Pending Supervisor', value: m.pendingSupervisor },
-        { label: 'Pending HR', value: m.pendingHr },
-        { label: 'Approved In-Country', value: m.approvedInCountry },
-        { label: 'Approved Out-of-Country', value: m.approvedOutOfCountry },
-        { label: 'Rejected', value: m.rejected },
-        { label: 'Upcoming 30d', value: m.upcoming30Days },
-        { label: 'Upcoming 60d', value: m.upcoming60Days },
-        { label: 'Est. Cost (Month)', value: this.formatCost(m.totalEstimatedCostThisMonth, m.currency) },
-      ];
+    this.dashboardService.getMetrics().subscribe({
+      next: m => this.ngZone.run(() => {
+        this.metrics = [
+          { label: 'Total (Month)', value: m.totalRequestsThisMonth },
+          { label: 'Pending Supervisor', value: m.pendingSupervisor },
+          { label: 'Pending HR', value: m.pendingHr },
+          { label: 'Approved In-Country', value: m.approvedInCountry },
+          { label: 'Approved Out-of-Country', value: m.approvedOutOfCountry },
+          { label: 'Rejected', value: m.rejected },
+          { label: 'Upcoming 30d', value: m.upcoming30Days },
+          { label: 'Upcoming 60d', value: m.upcoming60Days },
+          { label: 'Est. Cost (Month)', value: this.formatCost(m.totalEstimatedCostThisMonth, m.currency) },
+        ];
+        this.cdr.detectChanges();
+      }),
+      error: () => {}
     });
-    this.requestService.getAll().subscribe(list => this.recentRequests = list.slice(0, 10));
-    this.dashboardService.getMonthlyTrend().subscribe(data => this.renderTrend(data));
-    this.dashboardService.getByDepartment().subscribe(data => this.renderDept(data));
-    this.dashboardService.getTypeDistribution().subscribe(data => this.renderType(data));
-    this.dashboardService.getApprovalRates().subscribe(data => this.renderApproval(data));
+    this.requestService.getAll().subscribe({
+      next: list => this.ngZone.run(() => { this.recentRequests = list.slice(0, 10); this.cdr.detectChanges(); }),
+      error: () => {}
+    });
+    this.dashboardService.getMonthlyTrend().subscribe({ next: data => this.ngZone.run(() => this.renderTrend(data)), error: () => {} });
+    this.dashboardService.getByDepartment().subscribe({ next: data => this.ngZone.run(() => this.renderDept(data)), error: () => {} });
+    this.dashboardService.getTypeDistribution().subscribe({ next: data => this.ngZone.run(() => this.renderType(data)), error: () => {} });
+    this.dashboardService.getApprovalRates().subscribe({ next: data => this.ngZone.run(() => this.renderApproval(data)), error: () => {} });
   }
 
   renderTrend(data: any[]) {

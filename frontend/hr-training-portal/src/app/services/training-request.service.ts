@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { TrainingRequestDto, ApprovalAction, TrainingDocumentDto, AuditLogDto } from '../models';
@@ -19,6 +19,10 @@ export class TrainingRequestService {
 
   getSupervisorPending(): Observable<TrainingRequestDto[]> {
     return this.http.get<TrainingRequestDto[]>(`${this.API}/supervisor/pending`);
+  }
+
+  getSupervisorAll(): Observable<TrainingRequestDto[]> {
+    return this.http.get<TrainingRequestDto[]>(`${this.API}/supervisor/all`);
   }
 
   getAll(status?: string, departmentId?: number, keyword?: string): Observable<TrainingRequestDto[]> {
@@ -49,3 +53,4 @@ export class TrainingRequestService {
     return this.http.get<AuditLogDto[]>(`${this.API}/${id}/audit-logs`);
   }
 }
+

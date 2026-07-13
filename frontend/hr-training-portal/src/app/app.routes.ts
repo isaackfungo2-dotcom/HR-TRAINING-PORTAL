@@ -8,16 +8,17 @@ import { HrReviewComponent } from './pages/hr-review/hr-review.component';
 import { UsersComponent } from './pages/users/users.component';
 import { NotificationsComponent } from './pages/notifications/notifications.component';
 import { RequestDetailComponent } from './pages/request-detail/request-detail.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'requests', component: MyRequestsComponent },
-  { path: 'requests/:id', component: RequestDetailComponent },
-  { path: 'new-request', component: NewRequestComponent },
-  { path: 'supervisor', component: SupervisorReviewComponent },
-  { path: 'hr-review', component: HrReviewComponent },
-  { path: 'users', component: UsersComponent },
-  { path: 'notifications', component: NotificationsComponent },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'requests', component: MyRequestsComponent, canActivate: [authGuard] },
+  { path: 'requests/:id', component: RequestDetailComponent, canActivate: [authGuard] },
+  { path: 'new-request', component: NewRequestComponent, canActivate: [authGuard] },
+  { path: 'supervisor', component: SupervisorReviewComponent, canActivate: [authGuard] },
+  { path: 'hr-review', component: HrReviewComponent, canActivate: [authGuard] },
+  { path: 'users', component: UsersComponent, canActivate: [authGuard] },
+  { path: 'notifications', component: NotificationsComponent, canActivate: [authGuard] },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];

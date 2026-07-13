@@ -50,6 +50,12 @@ public class TrainingRequestController {
         return ResponseEntity.ok(trainingRequestService.getSupervisorPendingRequests(email));
     }
 
+    @GetMapping("supervisor/all")
+    public ResponseEntity<List<TrainingRequestDto>> getSupervisorAll(@RequestHeader("Authorization") String authHeader) {
+        String email = getEmail(authHeader);
+        return ResponseEntity.ok(trainingRequestService.getSupervisorAllRequests(email));
+    }
+
     @GetMapping("")
     public ResponseEntity<List<TrainingRequestDto>> getAllRequests(
             @RequestParam(required = false) String status,

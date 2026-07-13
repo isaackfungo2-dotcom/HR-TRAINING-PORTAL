@@ -96,6 +96,14 @@ public class TrainingRequestService {
                 .collect(Collectors.toList());
     }
 
+    public List<TrainingRequestDto> getSupervisorAllRequests(String email) {
+        User user = userRepo.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return requestRepo.findBySupervisorId(user.getId())
+                .stream()
+                .map(this::toDto)
+                .collect(Collectors.toList());
+    }
+
     public List<TrainingRequestDto> getAllRequests(RequestStatus status, Long departmentId, String keyword) {
         Specification<TrainingRequest> spec = Specification.where(null);
         if (status != null) {

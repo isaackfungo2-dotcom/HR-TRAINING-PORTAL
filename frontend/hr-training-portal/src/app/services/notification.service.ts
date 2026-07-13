@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+﻿import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { NotificationDto } from '../models';
@@ -29,3 +29,4 @@ export class NotificationService {
     return this.http.put<void>(`${this.API}/read-all?userId=${userId}`, {});
   }
 }
+
